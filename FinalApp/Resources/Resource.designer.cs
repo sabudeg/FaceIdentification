@@ -3144,26 +3144,26 @@ namespace FinalApp
 			// aapt resource value: 0x7f020054
 			public const int avd_hide_password = 2130837588;
 			
-			// aapt resource value: 0x7f020076
-			public const int avd_hide_password_1 = 2130837622;
-			
-			// aapt resource value: 0x7f020077
-			public const int avd_hide_password_2 = 2130837623;
-			
 			// aapt resource value: 0x7f020078
-			public const int avd_hide_password_3 = 2130837624;
+			public const int avd_hide_password_1 = 2130837624;
+			
+			// aapt resource value: 0x7f020079
+			public const int avd_hide_password_2 = 2130837625;
+			
+			// aapt resource value: 0x7f02007a
+			public const int avd_hide_password_3 = 2130837626;
 			
 			// aapt resource value: 0x7f020055
 			public const int avd_show_password = 2130837589;
 			
-			// aapt resource value: 0x7f020079
-			public const int avd_show_password_1 = 2130837625;
-			
-			// aapt resource value: 0x7f02007a
-			public const int avd_show_password_2 = 2130837626;
-			
 			// aapt resource value: 0x7f02007b
-			public const int avd_show_password_3 = 2130837627;
+			public const int avd_show_password_1 = 2130837627;
+			
+			// aapt resource value: 0x7f02007c
+			public const int avd_show_password_2 = 2130837628;
+			
+			// aapt resource value: 0x7f02007d
+			public const int avd_show_password_3 = 2130837629;
 			
 			// aapt resource value: 0x7f020056
 			public const int design_bottom_navigation_item_background = 2130837590;
@@ -3205,7 +3205,7 @@ namespace FinalApp
 			public const int ic_notifications_black_24dp = 2130837602;
 			
 			// aapt resource value: 0x7f020063
-			public const int IMG_20160927_154859 = 2130837603;
+			public const int krakow = 2130837603;
 			
 			// aapt resource value: 0x7f020064
 			public const int mtrl_snackbar_background = 2130837604;
@@ -3240,11 +3240,11 @@ namespace FinalApp
 			// aapt resource value: 0x7f02006e
 			public const int notification_icon_background = 2130837614;
 			
-			// aapt resource value: 0x7f020074
-			public const int notification_template_icon_bg = 2130837620;
+			// aapt resource value: 0x7f020076
+			public const int notification_template_icon_bg = 2130837622;
 			
-			// aapt resource value: 0x7f020075
-			public const int notification_template_icon_low_bg = 2130837621;
+			// aapt resource value: 0x7f020077
+			public const int notification_template_icon_low_bg = 2130837623;
 			
 			// aapt resource value: 0x7f02006f
 			public const int notification_tile_bg = 2130837615;
@@ -3256,10 +3256,16 @@ namespace FinalApp
 			public const int passportpic = 2130837617;
 			
 			// aapt resource value: 0x7f020072
-			public const int tooltip_frame_dark = 2130837618;
+			public const int psfix = 2130837618;
 			
 			// aapt resource value: 0x7f020073
-			public const int tooltip_frame_light = 2130837619;
+			public const int tooltip_frame_dark = 2130837619;
+			
+			// aapt resource value: 0x7f020074
+			public const int tooltip_frame_light = 2130837620;
+			
+			// aapt resource value: 0x7f020075
+			public const int vesika = 2130837621;
 			
 			static Drawable()
 			{
@@ -3394,8 +3400,11 @@ namespace FinalApp
 			// aapt resource value: 0x7f0a00a3
 			public const int browser_actions_menu_view = 2131361955;
 			
-			// aapt resource value: 0x7f0a00a0
-			public const int btnDetect = 2131361952;
+			// aapt resource value: 0x7f0a00a1
+			public const int btnDetect = 2131361953;
+			
+			// aapt resource value: 0x7f0a009f
+			public const int btnTake = 2131361951;
 			
 			// aapt resource value: 0x7f0a0072
 			public const int buttonPanel = 2131361906;
@@ -3511,8 +3520,8 @@ namespace FinalApp
 			// aapt resource value: 0x7f0a0067
 			public const int forever = 2131361895;
 			
-			// aapt resource value: 0x7f0a009f
-			public const int fromGallery = 2131361951;
+			// aapt resource value: 0x7f0a00a0
+			public const int fromGallery = 2131361952;
 			
 			// aapt resource value: 0x7f0a000a
 			public const int ghost_view = 2131361802;
@@ -3537,6 +3546,9 @@ namespace FinalApp
 			
 			// aapt resource value: 0x7f0a006e
 			public const int image = 2131361902;
+			
+			// aapt resource value: 0x7f0a009e
+			public const int imageView = 2131361950;
 			
 			// aapt resource value: 0x7f0a00c0
 			public const int info = 2131361984;
@@ -3730,9 +3742,6 @@ namespace FinalApp
 			// aapt resource value: 0x7f0a002b
 			public const int showHome = 2131361835;
 			
-			// aapt resource value: 0x7f0a00a1
-			public const int showResult = 2131361953;
-			
 			// aapt resource value: 0x7f0a002c
 			public const int showTitle = 2131361836;
 			
@@ -3792,9 +3801,6 @@ namespace FinalApp
 			
 			// aapt resource value: 0x7f0a0020
 			public const int tag_unhandled_key_listeners = 2131361824;
-			
-			// aapt resource value: 0x7f0a009e
-			public const int takePic = 2131361950;
 			
 			// aapt resource value: 0x7f0a0021
 			public const int text = 2131361825;
@@ -5932,7 +5938,10 @@ namespace FinalApp
 		{
 			
 			// aapt resource value: 0x7f080000
-			public const int xamarin_essentials_fileprovider_file_paths = 2131230720;
+			public const int file_paths = 2131230720;
+			
+			// aapt resource value: 0x7f080001
+			public const int xamarin_essentials_fileprovider_file_paths = 2131230721;
 			
 			static Xml()
 			{

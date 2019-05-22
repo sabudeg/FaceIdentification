@@ -114,24 +114,17 @@ namespace TrainAI
                     break;
                 await Task.Delay(1000);
             }
-
             Console.WriteLine($"Training AI {trainingStatus.Status.ToString()} {trainingStatus.Message}");
         }
 
         static async void Evaluate()
         {
-
-            //
             var p = new Program();
-
 
             foreach (var item in await p.faceServiceClient.ListPersonGroupsAsync())
             {
                 Console.WriteLine(item.Name);
-
             }
-
-
 
             await new Program().CreatePersonGroup("cvai", "workspace");
 
@@ -141,16 +134,9 @@ namespace TrainAI
                    await p.TrainingAI("cvai");
                });
 
+            string testImageFile = @"C:\Users\degirmenci\source\repos\MobilFinal\FinalApp\Resources\drawable\vesika.jpg";
 
-
-
-            string testImageFile = @"C:\Users\degirmenci\source\repos\MobilFinal\FinalApp\Resources\drawable\passportpic.jpg";
-
-            // await p.AddPersonToGroup("bigview", "Scarlett Johansson", @"C:\Git\unespacioparanet\IA\Xam\Demos\CS\FaceIdentify\Images\scarlett johansson\");
-            // await p.AddPersonToGroup("bigview", "Sergio A Vargas", @"C:\Git\unespacioparanet\IA\Xam\Demos\CS\FaceIdentify\Images\SergioVargas\");
-            // await p.TrainingAI("bigview");
             await p.RecognitionFace("cvai", testImageFile);
-
         }
 
         static void Main(string[] args)
