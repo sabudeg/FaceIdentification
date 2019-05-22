@@ -15,7 +15,7 @@ namespace FinalApp.Model
     public class IdentifyResultModel
     {
         public List<Candidates> candidates { get; set; }
-        public string faceId { get; set; }
+        public string faceid { get; set; }
 
     }
 

@@ -12,11 +12,11 @@ using FaceIdentificationApp.Helper;
 using FinalApp.Model;
 using GoogleGson;
 using Java.Util;
-using Microsoft.Azure.CognitiveServices.Vision;
 using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.IO;
 using Xamarin.Cognitive.Face.Droid;
+
 
 namespace FinalApp
 {
@@ -25,10 +25,11 @@ namespace FinalApp
     {
 
         public FaceServiceRestClient faceServiceRestClient = new FaceServiceRestClient("https://westcentralus.api.cognitive.microsoft.com/face/v1.0", "725a30b5298c45fbb006b66933c98614");
+
         private string groupPersonId = "cvai";
         public ImageView imageView;
         public Bitmap imageBitMap;
-        Button btnTake, btnGallery, btnResult, buttonDetect;
+        public Button btnTake, btnGallery, btnResult, buttonDetect;
         public List<FaceModel> detectedFaces = new List<FaceModel>();
 
         protected override void OnCreate(Bundle savedInstanceState)
@@ -69,9 +70,7 @@ namespace FinalApp
             {
                 Intent intent = new Intent(MediaStore.ActionImageCapture);
                 StartActivityForResult(intent, 0);
-                
             };
-
           
             btnResult.Click += delegate
             {
@@ -82,6 +81,15 @@ namespace FinalApp
             };
 
         }
+
+        protected override void OnActivityResult(int requestCode, [GeneratedEnum] Result resultCode, Intent data)
+        {
+            //Cargar imagen de cámara
+            base.OnActivityResult(requestCode, resultCode, data);
+            imageBitMap = (Bitmap)data.Extras.Get("data");
+            imageView.SetImageBitmap(imageBitMap);
+        }
+
         public override void OnRequestPermissionsResult(int requestCode, string[] permissions, [GeneratedEnum] Android.Content.PM.Permission[] grantResults)
         {
             Xamarin.Essentials.Platform.OnRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -140,17 +148,12 @@ namespace FinalApp
         }
         protected override void OnPreExecute()
         {
-          //  mDialog.Window.SetType(WindowManagerTypes.SystemAlert);
-           // mDialog.Show();
         }
         protected override void OnProgressUpdate(params string[] values)
         {
-           // mDialog.SetMessage(values[0]);
         }
         protected override void OnPostExecute(string result)
         {
-           // mDialog.Dismiss();
-
 
             var identifyList = JsonConvert.DeserializeObject<List<IdentifyResultModel>>(result);
             foreach (var identify in identifyList)
@@ -175,15 +178,6 @@ namespace FinalApp
     class DetectTask : AsyncTask<Stream, string, string>
     {
         private MainActivity mainActivity;
-        private string personGroupId;
-        private ProgressBar mDialog = new ProgressBar(Application.Context);
-
-        public DetectTask(MainActivity mainActivity, string personGroupId)
-        {
-            this.mainActivity = mainActivity;
-            this.personGroupId = personGroupId;
-        }
-
         public DetectTask(MainActivity mainActivity)
         {
             this.mainActivity = mainActivity;
@@ -191,7 +185,6 @@ namespace FinalApp
 
         protected override string RunInBackground(params Stream[] @params)
         {
-  
 
             PublishProgress("Detecting...");
             var result = mainActivity.faceServiceRestClient.Detect(@params[0],true,false,null);
@@ -218,10 +211,38 @@ namespace FinalApp
 
         protected override void OnPostExecute(string result)
         {
-
-
             var faces = JsonConvert.DeserializeObject<List<FaceModel>>(result);
+            var bitmap = DrawRectanglesOnBitmap(mainActivity.imageBitMap, faces);
+            mainActivity.imageView.SetImageBitmap(bitmap);
             mainActivity.detectedFaces = faces;
+
+            if (mainActivity.detectedFaces.Count != 0)
+                mainActivity.btnResult.Enabled = true;
+        }
+
+        private Bitmap DrawRectanglesOnBitmap(Bitmap mBitmap, List<FaceModel> faces)
+        {
+            Bitmap bitmap = mBitmap.Copy(Bitmap.Config.Argb8888, true);
+            Canvas canvas = new Canvas(bitmap);
+            Paint paint = new Paint
+            {
+                AntiAlias = true
+            };
+            paint.SetStyle(Paint.Style.Stroke);
+            paint.Color = Color.White;
+            paint.StrokeWidth = 12;
+
+            foreach (var face in faces)
+            {
+                var faceRectangle = face.faceRectangle;
+                canvas.DrawRect(faceRectangle.left,
+                    faceRectangle.top,
+                    faceRectangle.left + faceRectangle.width,
+                    faceRectangle.top + faceRectangle.height,
+                    paint);
+            }
+            return bitmap;
+
         }
 
     }
