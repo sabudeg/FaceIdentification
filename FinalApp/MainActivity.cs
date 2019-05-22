@@ -12,13 +12,14 @@ using Android.Widget;
 using FaceIdentificationApp.Helper;
 using FinalApp.Model;
 using GoogleGson;
+using Java.IO;
 using Java.Util;
 using Newtonsoft.Json;
 using Plugin.Permissions;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using Xamarin.Cognitive.Face.Droid;
-
 
 namespace FinalApp
 {
@@ -29,6 +30,7 @@ namespace FinalApp
         private string personGroupId = "cvai";
         public ImageView imageView;
         public Bitmap mBitmap;
+        string galleryPath;
         Button btnDetect, btnIdentify, btnTake, btnGallery;
         List<FaceModel> facesDetected = new List<FaceModel>();
         public override void OnRequestPermissionsResult(int requestCode, string[] permissions, [GeneratedEnum] Permission[] grantResults)
@@ -44,7 +46,7 @@ namespace FinalApp
             imageView.SetImageBitmap(mBitmap);
 
 
-            //     btnIdentify = FindViewById<Button>(Resource.Id.btnIdentify);
+            //btnIdentify = FindViewById<Button>(Resource.Id.btnIdentify);
             btnTake = FindViewById<Button>(Resource.Id.btnTake);
             btnGallery = FindViewById<Button>(Resource.Id.fromGallery);
             btnDetect = FindViewById<Button>(Resource.Id.btnDetect);
@@ -61,6 +63,8 @@ namespace FinalApp
                 byte[] bitmapData;
                 using (var stream = new MemoryStream())
                 {
+                //    mBitmap = BitmapFactory.DecodeFile(galleryPath);
+
                     mBitmap.Compress(Bitmap.CompressFormat.Jpeg, 100, stream);
                     bitmapData = stream.ToArray();
                 }
@@ -74,6 +78,7 @@ namespace FinalApp
                 StartActivityForResult(intent, 2);
             };
 
+            
         }
         protected override void OnActivityResult(int requestCode, [GeneratedEnum] Result resultCode, Intent data)
         {
@@ -89,9 +94,13 @@ namespace FinalApp
                 Stream stream = ContentResolver.OpenInputStream(data.Data);
                 imageView.SetImageBitmap(BitmapFactory.DecodeStream(stream));
 
-                mBitmap = BitmapFactory.DecodeStream(stream);
-            }
+                // mBitmap = BitmapFactory.DecodeFile(data.Data.Path);
+                // mBitmap = (Bitmap)BitmapFactory.DecodeStream(stream);
 
+                // galleryPath = data.Data.EncodedPath;
+                mBitmap = MediaStore.Images.Media.GetBitmap(ContentResolver, data.Data);
+
+            }
         }
 
         class IdentificationTask : AsyncTask<string, string, string>
