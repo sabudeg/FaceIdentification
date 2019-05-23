@@ -129,12 +129,16 @@ namespace TrainAI
             await new Program().CreatePersonGroup("cvai", "workspace");
 
             await p.AddPersonToGroup("cvai", "Burak Degirmenci", @"C:\Users\degirmenci\source\repos\MobilFinal\Images\burak")
-               .ContinueWith(async (x) =>
+                .ContinueWith(async (x) =>
+                {
+                    await p.AddPersonToGroup("cvai", "Atakan", @"C:\Users\degirmenci\source\repos\MobilFinal\Images\atakan");
+                })
+                .ContinueWith(async (x) =>
                {
                    await p.TrainingAI("cvai");
                });
 
-            string testImageFile = @"C:\Users\degirmenci\source\repos\MobilFinal\FinalApp\Resources\drawable\vesika.jpg";
+            string testImageFile = @"C:\Users\degirmenci\source\repos\MobilFinal\FinalApp\Resources\drawable\atk5.jpg";
 
             await p.RecognitionFace("cvai", testImageFile);
         }
