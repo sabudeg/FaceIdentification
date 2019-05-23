@@ -17,7 +17,7 @@ namespace TrainAI
         {
             try
             {
-                // await faceServiceClient.DeletePersonGroupAsync(personGroupId);
+                //await faceServiceClient.DeletePersonGroupAsync(personGroupId);
                 await faceServiceClient.CreatePersonGroupAsync(personGroupId, personGroupName);
             }
             catch (Exception ex)
@@ -128,7 +128,7 @@ namespace TrainAI
 
             await new Program().CreatePersonGroup("cvai", "workspace");
 
-            await p.AddPersonToGroup("cvai", "Burak Degirmenci", @"C:\Users\degirmenci\source\repos\MobilFinal\Images\burak")
+            await p.AddPersonToGroup("cvai", "Burak", @"C:\Users\degirmenci\source\repos\MobilFinal\Images\burak")
                 .ContinueWith(async (x) =>
                 {
                     await p.AddPersonToGroup("cvai", "Atakan", @"C:\Users\degirmenci\source\repos\MobilFinal\Images\atakan");
@@ -138,13 +138,15 @@ namespace TrainAI
                    await p.TrainingAI("cvai");
                });
 
-            string testImageFile = @"C:\Users\degirmenci\source\repos\MobilFinal\FinalApp\Resources\drawable\atk5.jpg";
+            string testImageFile = @"C:\Users\degirmenci\source\repos\MobilFinal\FinalApp\Resources\drawable\psfix.jpeg";
 
             await p.RecognitionFace("cvai", testImageFile);
         }
 
         static void Main(string[] args)
         {
+
+
             Evaluate();
             Console.ReadKey();
         }

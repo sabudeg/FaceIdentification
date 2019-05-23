@@ -33,6 +33,7 @@ namespace FinalApp
         string galleryPath;
         Button btnDetect, btnIdentify, btnTake, btnGallery;
         List<FaceModel> facesDetected = new List<FaceModel>();
+        List<IdentifyResultModel> IdentifiedPeople = new List<IdentifyResultModel>();
         public override void OnRequestPermissionsResult(int requestCode, string[] permissions, [GeneratedEnum] Permission[] grantResults)
         => PermissionsImplementation.Current.OnRequestPermissionsResult(requestCode, permissions, grantResults);
 
@@ -142,10 +143,13 @@ namespace FinalApp
                     mainActivity.imageView.SetImageBitmap(bitmap);
                     mainActivity.facesDetected = faces;
 
+                    Toast.MakeText(mainActivity.ApplicationContext, faces.Count + " face(s) detected" , ToastLength.Short).Show();
+
                 }
                 catch (Exception e)
                 {
-                  //  Toast.MakeText(mainActivity.ApplicationContext, "No one detected", ToastLength.Short).Show();
+                    System.Console.WriteLine("Detection exception has thrown.");
+                    //  Toast.MakeText(mainActivity.ApplicationContext, "No one detected", ToastLength.Short).Show();
                 }
 
             }
@@ -228,25 +232,25 @@ namespace FinalApp
                     {
                         if (identify.candidates.Count == 0)
                         {
-                            Toast.MakeText(mainActivity.ApplicationContext, "No one detected", ToastLength.Long).Show();
+                            Toast.MakeText(mainActivity.ApplicationContext, "No one identified.", ToastLength.Long).Show();
                             continue;
                         }
                         else
                         {
-                            Toast.MakeText(mainActivity.ApplicationContext, identifyList.Count + " detected.", ToastLength.Long).Show();
+                            Toast.MakeText(mainActivity.ApplicationContext, identifyList.Count + " face(s) identified.", ToastLength.Long).Show();
                             var candidate = identify.candidates[0];
                             var personId = candidate.personId;
+                            mainActivity.IdentifiedPeople = identifyList;
                             new PersonDetectionTask(mainActivity, personGroupId).Execute(personId);
                         }
                     }
                 }
                 catch (Exception e)
                 {
-                    Toast.MakeText(mainActivity.ApplicationContext, "No one detected", ToastLength.Long).Show();
+                    System.Console.WriteLine("Identification exception has thrown.");
+                   // Toast.MakeText(mainActivity.ApplicationContext, "Identification exception has thrown.", ToastLength.Long).Show();
                 }
-
             }
-
 
         }
         class PersonDetectionTask : AsyncTask<string, string, string>
@@ -273,6 +277,7 @@ namespace FinalApp
                 catch (Exception ex)
                 {
                     return null;
+                    System.Console.WriteLine("PersonDetectionTask exception has thrown.");
                 }
             }
             protected override void OnPreExecute()
@@ -289,6 +294,7 @@ namespace FinalApp
                 mainActivity.imageView.SetImageBitmap(
                     DrawHelper.DrawRectangleOnBitmap(mainActivity.mBitmap,
                      mainActivity.facesDetected,
+                   // mainActivity.IdentifiedPeople,
                      person.name));
 
                // if (mainActivity.faceServiceRestClient.GetPersons(personGroupId)) // EĞER PERSONGRUBUNDA KISI KAYITLIYSA ADINI YAZDIR
