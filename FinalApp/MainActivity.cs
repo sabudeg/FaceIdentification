@@ -41,12 +41,12 @@ namespace FinalApp
             base.OnCreate(savedInstanceState);
             SetContentView(Resource.Layout.activity_main);
 
-            mBitmap = BitmapFactory.DecodeResource(Resources, Resource.Drawable.krakow);
+            mBitmap = BitmapFactory.DecodeResource(Resources, Resource.Drawable.psfix);
             imageView = FindViewById<ImageView>(Resource.Id.imageView);
             imageView.SetImageBitmap(mBitmap);
 
 
-            //btnIdentify = FindViewById<Button>(Resource.Id.btnIdentify);
+            btnIdentify = FindViewById<Button>(Resource.Id.btnIdentify);
             btnTake = FindViewById<Button>(Resource.Id.btnTake);
             btnGallery = FindViewById<Button>(Resource.Id.fromGallery);
             btnDetect = FindViewById<Button>(Resource.Id.btnDetect);
@@ -63,7 +63,7 @@ namespace FinalApp
                 byte[] bitmapData;
                 using (var stream = new MemoryStream())
                 {
-                //    mBitmap = BitmapFactory.DecodeFile(galleryPath);
+                    //    mBitmap = BitmapFactory.DecodeFile(galleryPath);
 
                     mBitmap.Compress(Bitmap.CompressFormat.Jpeg, 100, stream);
                     bitmapData = stream.ToArray();
@@ -78,7 +78,16 @@ namespace FinalApp
                 StartActivityForResult(intent, 2);
             };
 
-            
+            btnIdentify.Click += delegate
+            {
+                string[] facesID = new string[facesDetected.Count];
+                for (int i = 0; i < facesDetected.Count; i++)
+                    facesID[i] = facesDetected[i].faceId;
+
+                new IdentificationTask(this, personGroupId).Execute(facesID);
+            };
+
+
         }
         protected override void OnActivityResult(int requestCode, [GeneratedEnum] Result resultCode, Intent data)
         {
@@ -99,9 +108,78 @@ namespace FinalApp
 
                 // galleryPath = data.Data.EncodedPath;
                 mBitmap = MediaStore.Images.Media.GetBitmap(ContentResolver, data.Data);
-
             }
         }
+
+        class DetectTask : AsyncTask<Stream, string, string>
+        {
+            private MainActivity mainActivity;
+            public DetectTask(MainActivity mainActivity)
+            {
+                this.mainActivity = mainActivity;
+            }
+            protected override string RunInBackground(params Stream[] @params)
+            {
+                var result = mainActivity.faceServiceRestClient.Detect(@params[0], true, false, null);
+                if (result == null)
+                {
+                    return null;
+                }
+
+                Gson gson = new Gson();
+                var stringResult = gson.ToJson(result);
+                return stringResult;
+            }
+            protected override void OnPreExecute()
+            {
+            }
+            protected override void OnPostExecute(string result)
+            {
+                try
+                {
+                    var faces = JsonConvert.DeserializeObject<List<FaceModel>>(result);
+                    var bitmap = DrawRectanglesOnBitmap(mainActivity.mBitmap, faces);
+                    mainActivity.imageView.SetImageBitmap(bitmap);
+                    mainActivity.facesDetected = faces;
+
+                }
+                catch (Exception e)
+                {
+                  //  Toast.MakeText(mainActivity.ApplicationContext, "No one detected", ToastLength.Short).Show();
+                }
+
+            }
+            protected override void OnProgressUpdate(params string[] values)
+            {
+            }
+
+            private Bitmap DrawRectanglesOnBitmap(Bitmap mBitmap, List<FaceModel> faces)
+            {
+                Bitmap bitmap = mBitmap.Copy(Bitmap.Config.Argb8888, true);
+                Canvas canvas = new Canvas(bitmap);
+                Paint paint = new Paint
+                {
+                    AntiAlias = true
+                };
+                paint.SetStyle(Paint.Style.Stroke);
+                paint.Color = Color.White;
+                paint.StrokeWidth = 12;
+
+                foreach (var face in faces)
+                {
+                    var faceRectangle = face.faceRectangle;
+                    canvas.DrawRect(faceRectangle.left,
+                        faceRectangle.top,
+                        faceRectangle.left + faceRectangle.width,
+                        faceRectangle.top + faceRectangle.height,
+                        paint);
+                }
+                return bitmap;
+
+            }
+
+        }
+
 
         class IdentificationTask : AsyncTask<string, string, string>
         {
@@ -117,8 +195,6 @@ namespace FinalApp
             {
                 try
                 {
-                    PublishProgress("Identifying...");
-
                     UUID[] uuidList = new UUID[@params.Length];
                     for (int i = 0; i < @params.Length; i++)
                         uuidList[i] = UUID.FromString(@params[i]);
@@ -145,22 +221,30 @@ namespace FinalApp
             }
             protected override void OnPostExecute(string result)
             {
-                var identifyList = JsonConvert.DeserializeObject<List<IdentifyResultModel>>(result);
-                foreach (var identify in identifyList)
+                try
                 {
-                    if (identify.candidates.Count == 0)
+                    var identifyList = JsonConvert.DeserializeObject<List<IdentifyResultModel>>(result);
+                    foreach (var identify in identifyList)
                     {
-                        Toast.MakeText(mainActivity.ApplicationContext, "No one detected", ToastLength.Long).Show();
-                        continue;
-                    }
-                    else
-                    {
-                        Toast.MakeText(mainActivity.ApplicationContext, identifyList.Count + " detected.", ToastLength.Long).Show();
-                        var candidate = identify.candidates[0];
-                        var personId = candidate.personId;
-                        new PersonDetectionTask(mainActivity, personGroupId).Execute(personId);
+                        if (identify.candidates.Count == 0)
+                        {
+                            Toast.MakeText(mainActivity.ApplicationContext, "No one detected", ToastLength.Long).Show();
+                            continue;
+                        }
+                        else
+                        {
+                            Toast.MakeText(mainActivity.ApplicationContext, identifyList.Count + " detected.", ToastLength.Long).Show();
+                            var candidate = identify.candidates[0];
+                            var personId = candidate.personId;
+                            new PersonDetectionTask(mainActivity, personGroupId).Execute(personId);
+                        }
                     }
                 }
+                catch (Exception e)
+                {
+                    Toast.MakeText(mainActivity.ApplicationContext, "No one detected", ToastLength.Long).Show();
+                }
+
             }
 
 
@@ -177,13 +261,19 @@ namespace FinalApp
 
             protected override string RunInBackground(params string[] @params)
             {
-                PublishProgress("Getting person...");
-                UUID uuid = UUID.FromString(@params[0]);
+                try
+                {
+                    UUID uuid = UUID.FromString(@params[0]);
 
                 var person = mainActivity.faceServiceRestClient.GetPerson(personGroupId, uuid);
                 Gson gson = new Gson();
                 var result = gson.ToJson(person);
                 return result;
+                }
+                catch (Exception ex)
+                {
+                    return null;
+                }
             }
             protected override void OnPreExecute()
             {
@@ -194,57 +284,18 @@ namespace FinalApp
 
             protected override void OnPostExecute(string result)
             {
+
                 var person = JsonConvert.DeserializeObject<PersonModel>(result);
                 mainActivity.imageView.SetImageBitmap(
                     DrawHelper.DrawRectangleOnBitmap(mainActivity.mBitmap,
                      mainActivity.facesDetected,
                      person.name));
+
+               // if (mainActivity.faceServiceRestClient.GetPersons(personGroupId)) // EĞER PERSONGRUBUNDA KISI KAYITLIYSA ADINI YAZDIR
             }
         }
-        class DetectTask : AsyncTask<Stream, string, string>
-        {
-            private MainActivity mainActivity;
-            public DetectTask(MainActivity mainActivity)
-            {
-                this.mainActivity = mainActivity;
-            }
-            protected override string RunInBackground(params Stream[] @params)
-            {
-                PublishProgress("Detecting...");
-                var result = mainActivity.faceServiceRestClient.Detect(@params[0], true, false, null);
-                if (result == null)
-                {
-                    PublishProgress("Detection Finished. Nothing detected");
-                    return null;
-                }
-                PublishProgress($"Detection Finished. {result.Length} face(s) detected");
 
-                Gson gson = new Gson();
-                var stringResult = gson.ToJson(result);
-                return stringResult;
-            }
-            protected override void OnPreExecute()
-            {
-            }
-            protected override void OnPostExecute(string result)
-            {
-                var faces = JsonConvert.DeserializeObject<List<FaceModel>>(result);
-                mainActivity.facesDetected = faces;
-
-                string[] facesID = new string[mainActivity.facesDetected.Count];
-                for (int i = 0; i < mainActivity.facesDetected.Count; i++)
-                    facesID[i] = mainActivity.facesDetected[i].faceId;
-
-                new IdentificationTask(mainActivity, mainActivity.personGroupId).Execute(facesID);
-
-            }
-            protected override void OnProgressUpdate(params string[] values)
-            {
-            }
-
-        }
     }
-
 
 }
 
